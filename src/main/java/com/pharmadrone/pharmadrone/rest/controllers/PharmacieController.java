@@ -56,8 +56,13 @@ public class PharmacieController {
     }
 
     @GetMapping("/pharmacy")
-    public ResponseEntity<?> getMethodName() {
+    public ResponseEntity<?> getAllPharmacy() {
         return ResponseEntity.ok(pharmacieService.getAllPharmacies());
+    }
+
+    @GetMapping("/regions")
+    public ResponseEntity<?> getAllRegion() {
+        return ResponseEntity.ok(pharmacieService.getListRegion());
     }
 
     @MessageMapping("/chat")
