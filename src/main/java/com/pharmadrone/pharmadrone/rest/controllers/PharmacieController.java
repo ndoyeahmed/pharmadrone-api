@@ -2,8 +2,12 @@ package com.pharmadrone.pharmadrone.rest.controllers;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+
+import javax.persistence.EntityNotFoundException;
 
 import com.pharmadrone.pharmadrone.entities.Pharmacie;
+import com.pharmadrone.pharmadrone.entities.Region;
 import com.pharmadrone.pharmadrone.rest.exceptions.BadRequestException;
 import com.pharmadrone.pharmadrone.services.PharmacieService;
 
@@ -32,25 +36,35 @@ public class PharmacieController {
     }
 
     @PostMapping("/pharmacy")
-    public ResponseEntity<?> addPharmacie(@RequestBody Pharmacie pharmacie) {
+    public ResponseEntity<?> addPharmacie(@RequestBody Map<String, String> body) {
 
-        if (pharmacie == null)
+        if (body == null)
             throw new BadRequestException("pharmacie required");
 
-        if (pharmacie.getNom() == null || pharmacie.getNom().trim().equals(""))
+        if (body.get("nom") == null || body.get("nom").trim().equals(""))
             throw new BadRequestException("nom pharmacie required");
 
-        if (pharmacie.getTelephone() == null || pharmacie.getTelephone().trim().equals(""))
+        if (body.get("telephone") == null || body.get("telephone").trim().equals(""))
             throw new BadRequestException("telephone pharmacie required");
 
-        if (pharmacie.getLatitude() == null)
+        if (body.get("latitude") == null)
             throw new BadRequestException("latitude pharmacie required");
 
-        if (pharmacie.getLongitude() == null)
+        if (body.get("longitude") == null)
             throw new BadRequestException("longitude pharmacie required");
 
-        if (pharmacie.getRegion() == null || pharmacie.getRegion().getId() == null)
+        if (body.get("region") == null)
             throw new BadRequestException("region pharmacie required");
+
+        Region region = pharmacieService.getRegionById(Long.parseLong(body.get("region")));
+        if (region == null) throw new EntityNotFoundException("region not found");
+
+        Pharmacie pharmacie = new Pharmacie();
+        pharmacie.setNom(body.get("nom"));
+        pharmacie.setTelephone(body.get("telephone"));
+        pharmacie.setLatitude(Double.parseDouble(body.get("latitude")));
+        pharmacie.setLongitude(Double.parseDouble(body.get("longitude")));
+        pharmacie.setRegion(region);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pharmacieService.addPharmacie(pharmacie));
     }
